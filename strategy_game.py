@@ -39,18 +39,12 @@ users = [
 
 
 def get_user_by_id(user_id: int):
-    # try:
-    print("DBG")
-    print(user_id)
-    print([user.id for user in users])
-    print()
-    user = next(user for user in users if user.id == user_id)
-    #         if user.id == user_id:
-    #             return user
-    # except StopIteration:
-    #     raise Exception(f"User with {user_id=} not found.")
-    # else:
-    return user
+    try:
+        user = next(user for user in users if user.id == user_id)
+    except StopIteration:
+        raise HTTPException(status_code=400, detail=f"User with {user_id=} not found.")
+    else:
+        return user
 
 
 @app.get("/")
@@ -58,38 +52,40 @@ def welcome_query():
     return "Welcome to the game. To create user: POST /new_user"
 
 
-@app.get("/admin/users")
+@app.get("/users")
 def get_users_query():
-    for user in users:
-        print("DBG")
-        print(user.id)
-
     return users
 
 
-@app.get("/{user_id}")
-def get_user_info_query(user_id) -> User:
+@app.get("/users/{user_id}")
+def get_user_info_query(user_id: int) -> User:
     return get_user_by_id(user_id)
 
 
 @app.post("/new_user")
 def add_user():
-    users.append(User())
+    new_user = User()
+    users.append(new_user)
+    return new_user
 
 
 @app.put("/admin/edit/{user_id}")
-def edit_user_query(
-            user_id: int,
-            money: int | None = None,
-            crystals: int | None = None):
+def edit_user_query(user_id: int, user: User):
+    list_user = get_user_by_id(user_id)
+    
+    # if money is not None:
+    #     print("edit money")
+    #     user.base.money = money
+    #     print(user.base.money)
+    #     # user.base.set_money(money)
 
-    user: User = get_user_by_id(user_id)
+    # if crystals is not None:
+    #     print("edit crystals")
+    #     user.base.crystals = crystals
+    #     print(user.base.crystals)
+    #     # user.base.set_crystals(crystals)
 
-    if user is None:
-        raise HTTPException(status_code=400, detail=f"User with {user_id=} not found.")
+    # print(user)
+    # # users.append(user)
 
-    if money is not None:
-        user.base.money = money
-
-    if crystals is not None:
-        user.base.crystals = crystals
+    return user
