@@ -8,20 +8,23 @@ host = "http://127.0.0.1:8000"
 def add_user():
     r = requests.post(url=host + "/new_user")
     pprint(r.json())
+    return r.json()["id"]
 
 
-def edit_user():
+def edit_user(user_id: int):
 
-    data = {
-        "user_id": "0",
-        "money": "10",
-        "crystals": "10"
+    json = {
+        "id": user_id,
+        "base": {
+            "money": 10,
+            "crystals": 10
+        }
     }
 
-    r = requests.post(url=host + "/admin/edit/0", data=data)
+    r = requests.put(url=host + f"/admin/edit/{user_id}", json=json)
     pprint(r.json())
 
 
 if __name__ == "__main__":
-    # post_edit_user()
-    add_user()
+    id = add_user()
+    edit_user(id)
