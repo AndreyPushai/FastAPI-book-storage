@@ -22,6 +22,12 @@ def edit_user(user_id: int):
     pprint(r.json())
 
 
+def add_money_facility(user_id: int):
+    r = requests.put(url=host + f"/users/{user_id}/add_money_facility")
+    pprint(r.json())
+
+
 if __name__ == "__main__":
     id = add_user()
     edit_user(id)
+    add_money_facility(id)

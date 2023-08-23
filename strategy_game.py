@@ -1,25 +1,10 @@
 from pydantic import BaseModel, Field
 from fastapi import FastAPI, HTTPException
 import time
+from user_base import UserBase
+
 
 app = FastAPI()
-
-
-class UserBase(BaseModel):
-    # max per level?
-    money: int = Field(default=0)
-    crystals: int = Field(default=0)
-
-
-    def set_money(self, value: int):
-        self.money = value
-
-
-    def set_crystals(self, value: int):
-        self.crystals = value
-
-    # forces
-    # defence
 
 
 class User(BaseModel):
@@ -73,4 +58,11 @@ def add_user():
 def edit_user_base_query(user_id: int, base: UserBase):
     user = get_user_by_id(user_id)
     user.base = base
+    return user
+
+
+@app.put("/users/{user_id}/add_money_facility")
+def add_money_facility_query(user_id: int):
+    user = get_user_by_id(user_id)
+    user.base.build_money_facility()
     return user
