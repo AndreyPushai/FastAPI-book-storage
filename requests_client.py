@@ -14,11 +14,8 @@ def add_user():
 def edit_user(user_id: int):
 
     json = {
-        "id": user_id,
-        "base": {
-            "money": 10,
-            "crystals": 10
-        }
+        "money": 10,
+        "crystals": 10
     }
 
     r = requests.put(url=host + f"/admin/edit/{user_id}", json=json)
