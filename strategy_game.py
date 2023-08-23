@@ -70,22 +70,7 @@ def add_user():
 
 
 @app.put("/admin/edit/{user_id}")
-def edit_user_query(user_id: int, user: User):
-    list_user = get_user_by_id(user_id)
-    
-    # if money is not None:
-    #     print("edit money")
-    #     user.base.money = money
-    #     print(user.base.money)
-    #     # user.base.set_money(money)
-
-    # if crystals is not None:
-    #     print("edit crystals")
-    #     user.base.crystals = crystals
-    #     print(user.base.crystals)
-    #     # user.base.set_crystals(crystals)
-
-    # print(user)
-    # # users.append(user)
-
+def edit_user_base_query(user_id: int, base: UserBase):
+    user = get_user_by_id(user_id)
+    user.base = base
     return user
