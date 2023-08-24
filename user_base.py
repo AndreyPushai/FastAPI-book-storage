@@ -1,9 +1,14 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
+from fastapi import HTTPException
+
 
 
 class MoneySpawnFacility(BaseModel):
 
+    type: str = Field(default="MoneyFacility")
+    price: int = Field(default=10)
+    build_time: int = Field(default=60)
     level: int = Field(default=1, ge=1, le=5)
     money: int = Field(default=0)
 
@@ -39,6 +44,11 @@ class UserBase(BaseModel):
 
 
     def build_money_facility(self):
+        price = MoneySpawnFacility().price
+        if self.money < price:
+            raise HTTPException(status_code=422, detail=f"Not enough money!")
+
+        self.money -= price
         self.facilities.append(MoneySpawnFacility())
 
     # forces
