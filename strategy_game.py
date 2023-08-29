@@ -1,25 +1,22 @@
 from pydantic import BaseModel, Field
 from fastapi import FastAPI, HTTPException
-import time
-from user_base import UserBase
+from player_base import PlayerBase
+from utils.time_generator import ns_timestamp
 
 
 app = FastAPI()
 
 
-class User(BaseModel):
-    def set_id():
-        return time.time_ns()
-
-    id: int = Field(default_factory=set_id)
-    base: UserBase = Field(default_factory=UserBase)
+class Player(BaseModel):
+    id: int = Field(default_factory=ns_timestamp)
+    base: PlayerBase = Field(default_factory=PlayerBase)
 
 
 users = [
-    User(),
-    User(),
-    User(),
-    User()
+    Player(),
+    Player(),
+    Player(),
+    Player()
 ]
 
 
@@ -27,7 +24,7 @@ def get_user_by_id(user_id: int):
     try:
         user = next(user for user in users if user.id == user_id)
     except StopIteration:
-        raise HTTPException(status_code=400, detail=f"User with {user_id=} not found.")
+        raise HTTPException(status_code=400, detail=f"Player with {user_id=} not found.")
     else:
         return user
 
@@ -43,19 +40,19 @@ def get_users_query():
 
 
 @app.get("/users/{user_id}")
-def get_user_info_query(user_id: int) -> User:
+def get_user_info_query(user_id: int) -> Player:
     return get_user_by_id(user_id)
 
 
 @app.post("/new_user")
 def add_user():
-    new_user = User()
+    new_user = Player()
     users.append(new_user)
     return new_user
 
 
 @app.put("/admin/edit/{user_id}")
-def edit_user_base_query(user_id: int, base: UserBase):
+def edit_user_base_query(user_id: int, base: PlayerBase):
     user = get_user_by_id(user_id)
     user.base = base
     return user
