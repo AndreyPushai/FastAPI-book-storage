@@ -2,6 +2,7 @@ from typing import Literal, Dict
 from pydantic import BaseModel, Field
 from datetime import datetime
 from fastapi import HTTPException
+from utils.time_generator import ns_timestamp
 
 
 facility_data = {
@@ -73,9 +74,9 @@ money_facility_stats = {
 
 
 class MoneySpawnFacility(BaseModel):
+    id: int = Field(default_factory=ns_timestamp)
     level: int = Field(default=1, ge=1, le=5)
     type: str = Field(default="MoneyFacility")
-
     capacity: int
     production_quantity: int
     spawn_time: int = Field(default=3600)
@@ -142,12 +143,18 @@ class PlayerBase(BaseModel):
 
 
     def build_money_facility(self):
-        price = MoneySpawnFacility().price
-        if self.money < price:
-            raise HTTPException(status_code=422, detail=f"Not enough money!")
+        stats = money_facility_stats.get(1)
+        build_price = stats.get("build_price")
 
-        self.set_money(self.money - price)
-        self.facilities.append(MoneySpawnFacility())
+        if self.money < build_price:
+            raise Exception(f"Requirement not met: {build_price}. Not enough money!")
+            raise HTTPException(status_code=422, detail=f"Requirement not met: {build_price}. Not enough money!")
+
+        self.set_money(self.money - build_price)
+        self.facilities.append(MoneySpawnFacility(
+            capacity = stats.get("capacity"),
+            production_quantity = stats.get("production_quantity")
+        ))
 
 
     def build_crystals_facility(self):
