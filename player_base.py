@@ -102,7 +102,7 @@ class MoneySpawnFacility(BaseModel):
 
     def get_next_level_requirements(self):
         next_level = self.level + 1
-        print(self.get_money_facility_stats(next_level))
+        return self.get_money_facility_stats(next_level)
 
 
     def upgrade(self):
@@ -166,13 +166,32 @@ class PlayerBase(BaseModel):
         self.facilities.append(MoneySpawnFacility())
 
 
-    def get_facility(self, type: str, level: int):
+    def get_facility(self, id: int):
         try:
-            facility = next(facility for facility in self.facilities if facility.type == type)
+            facility = next(facility for facility in self.facilities if facility.id == id)
         except StopIteration:
-            raise HTTPException(status_code=422, detail=f"Facility {type=} not found.")
+            raise HTTPException(status_code=422, detail=f"Facility {id=} not found.")
         else:
             return facility
+
+
+    def collect_money(self):
+        money_facilities = [facility for facility in self.facilities if facility.type == "MoneyFacility"]
+        for facility in money_facilities:
+            self.money += facility.money
+            facility.money = 0
+
+
+    def upgrade_money_facility(self, id: int):
+        facility: MoneySpawnFacility = self.get_facility(id)
+        build_price = facility.get_next_level_requirements().get("build_price")
+
+        if self.money < build_price:
+            raise Exception(f"Requirement not met: {build_price}. Not enough money!")
+            raise HTTPException(status_code=422, detail=f"Requirement not met: {build_price}. Not enough money!")
+
+        self.set_money(self.money - build_price)
+        facility.upgrade()
 
     # forces
     # defence
